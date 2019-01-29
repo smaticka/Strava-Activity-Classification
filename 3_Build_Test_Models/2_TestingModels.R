@@ -1,4 +1,5 @@
 # this is part 3 of the mini project in ms&e 226
+
 library(graphics)
 
 # read in saved test set
@@ -12,7 +13,6 @@ ID <- as.data.frame(cbind(df.test$Athlete, df.test$FileID))
 df.test = df.test[,colnames(df.test)!="Athlete"]
 df.test = df.test[,colnames(df.test)!="FileID"]
 
-
 # remove some covariates
 df.test = df.test[,colnames(df.test)!="Umean"]
 df.test = df.test[,colnames(df.test)!="Umax"]
@@ -24,23 +24,30 @@ df.test = df.test[,colnames(df.test)!="Turnsmin"]
 df.test$Iswim = as.numeric(df.test$Iswim)
 
 
-# test models
+########## test models
 
-# linear regression
+
+##### linear regression
 Yhat       <- predict(fm.BIC.bac, df.test)
 MSE.LinReg  = mean((df.test$Tstart - Yhat)^2)
 
+# Predict mean as the most basic predictive model 
 Yhat.base1       = rep(fm.base1, length(df.test$Tstart))
 MSE.LinReg.base1 =  mean((df.test$Tstart - Yhat.base1)^2)
 
+# basic predictive model using only a few covariates
 Yhat.base2       <- predict(fm.base2, df.test)
 MSE.LinReg.base2  = mean((df.test$Tstart - Yhat.base2)^2)
 
-# logistic regression
+###### logistic regression
+# use dummy model where it guesses the most likely activity (56% of activities were runs)
 MSE.LogReg.base1 = length(df.test[df.test$Activity=="run",1])/dim(df.test)[1]
 
 mat           = data.matrix(data.frame(df.test$Tstart, df.test$Ttotal, 
                                        df.test$Turnsmed, df.test$Umed), rownames.force = NA)
+
+# regularization with lamda that minimized classification error 
+# (performed cv via a penalized maximum likelihood iterative scheme)
 fit.base2.cat = predict.cv.glmnet(object = fm.base2.cat, newx = mat,
                             s = "lambda.min", type = "class")
 
@@ -51,12 +58,11 @@ fit.base2.cat = factor(fit.base2.cat)
 cvErr = fm.base2.cat$cvm[fm.base2.cat$lambda == fm.base2.cat$lambda.min]
 levels(fit.base2.cat) = c(levels(fit.base2.cat),"swim","walk")
 
-
-# compart to observation
+# compare to observation
 df.check = data.frame(Accuracy = (fit.base2.cat == df.test$Activity),
                       Activity = df.test$Activity)
 
-Acc = sum(df.check$Accuracy)/nrow(df.check)
+Acc = sum(df.check$Accuracy)/nrow(df.check) # accuracy
 
 # calculate accurace per activity
 df.sub = df.check[(df.check$Activity == 'run'),1]
@@ -103,9 +109,8 @@ Acc.ave = (Acc.ride+Acc.run+Acc.swim+Acc.walk)/4
 # fit base2 lin reg model on test data
 fm.base2.test    <- lm(df.test, formula = Tstart ~ 1 + dEmax + Dtotal + Ttotal + Turnsmed)
 
-# part 2 c
+#### part 2 c
 # bootstrap OLS
-
 
 # create function for mean and median
 coef.boot = function(data,indices) {
@@ -151,6 +156,7 @@ CI.mean.upper[5] = quantile(boot.b4, 0.975)
 
 term = c("Intercept","dEmax","Dtotal","Ttotal","Turnsmed")
 
+plot.new()
 plot((CI.mean.lower+CI.mean.upper)/2,type="p",ylim=c(-2,14),xlim=c(.8, 5.2),
      ylab = "Confidend Intervals",xlab = "Term Number")
 segments(1, CI.mean.lower[1], x1=1, y1=CI.mean.upper[1])

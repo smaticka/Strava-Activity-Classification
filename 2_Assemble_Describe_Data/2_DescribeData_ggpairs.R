@@ -1,11 +1,12 @@
 # read in training data and look at correlations between covariates
 
 # location of training and test data sets
-setwd('/Users/smaticka/Box Sync/stanford/Classes/MS&E 226 small data/mini project/I_Data_Files')
+rm(list=ls()) # clear work environment
+setwd('/Users/smaticka/Box Sync/stanford/Classes/MS&E 226 small data/Strava-Activity-Classification/I_Data_Files')
 
 # Install package on initial use
-# install.packages("ggplot2")
-# install.packages("GGally")
+#install.packages("ggplot2")
+#install.packages("GGally")
 
 library(ggplot2)
 library(GGally)

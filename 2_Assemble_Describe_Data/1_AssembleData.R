@@ -2,21 +2,16 @@
 #
 # Author: Sam Maticka
 #
-# Description: This script reads in .csv files containing 
-rm(list=ls())
+# Description: This script reads in .csv files containing covariates (processed in MATLAB)
+rm(list=ls()) # clear work environment
 
 # location of this file
-setwd('/Users/smaticka/Box Sync/stanford/Classes/MS&E 226 small data/mini project/I_Data_Files/csv files/')
-
+setwd('/Users/smaticka/Box Sync/stanford/Classes/MS&E 226 small data/Strava-Activity-Classification/I_Data_Files/csv files/')
 
 df.Sam.swim <- read.csv('Samswim.csv', header = TRUE)
-
 df.Adam.swim <- read.csv('Adamswim.csv', header = TRUE)
-
 df.Adam.ride <- read.csv('Adamride.csv', header = TRUE)
-
 df.Adam.run <- read.csv('Adamrun.csv', header = TRUE)
-
 df.Adam.walk <- read.csv('Adamwalk.csv', header = TRUE)
 
 # combine all activities into one data frame
@@ -41,7 +36,7 @@ df.train = df[train.ind,]
 df.test  = df[-train.ind,]
 
 saveRDS(df.train, file="../TrainingData.rds")
-# saveRDS(df.test, file="../TestData.rds")
+saveRDS(df.test, file="../TestData.rds")
 
 
 

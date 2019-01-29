@@ -17,21 +17,17 @@ SwimThresh  = 1.9; % m/s, Michael Phelps swam for 200 meters
 RunThresh   = 11;  % m/s, 11 m/s = 24.5mph. Bolt ran 28mph for 100m.. downhill, hmm
 DispThresh  = 100;
 
-% % for testing (comment out ii,jj for-loop indexing and Athlete declaration):
-% Athlete = 'Sam';
-% jj = 1; % index for swim
-
 % loop through each athlete and pull GPX data for each activity
-for ii = Athlets
+for ii = 1:length(Athletes)
     % Athlete to pull data from
-    Athlete = ii; 
+    Athlete = Athletes{ii}; 
     
     % loop through each activity type and pull the GPX data
-    for jj = 1:length(ActivityType)
+    for jj = [1,4]%:length(ActivityType)
         % Activity type to pull data for
         Activity = ActivityType{jj};
 
-        cd(strcat(FolderBase, Athlete, '_activities/',ActivityType{jj}))
+        cd([FolderBase, Athlete, '_activities/',ActivityType{jj}])
 
         clear activities
                 
@@ -72,9 +68,12 @@ for ii = Athlets
             %%%%% something stopped working for 'distance'. it is
             %%%%% calculating distance and displacement the same. need to
             %%%%% fix. maybe matlab bug? 
-            e             = wgs84Ellipsoid;
-            Distance      = distance(Lat(2:end),Lon(2:end),Lat(1:end-1),Lon(1:end-1), e)'; % meters
-            Displacement  = distance(Lat(2:end),Lon(2:end),Lat(1),Lon(1), e)'; % meters
+            e = wgs84Ellipsoid;
+            earthRadiusInMeters = 6371000;
+%             Distance      = distance(Lat(2:end),Lon(2:end),Lat(1:end-1),Lon(1:end-1), e)'; % meters
+            Distance      = earthdist(Lat(2:end),Lon(2:end),Lat(1:end-1),Lon(1:end-1), earthRadiusInMeters); % meters
+%             Displacement  = distance(Lat(2:end),Lon(2:end),Lat(1),Lon(1), e)'; % meters
+            Displacement  = earthdist(Lat(2:end),Lon(2:end),Lat(1),Lon(1), earthRadiusInMeters); % meters
             Elevation     = Elevation(2:end);
             
             % calculate time intervals and resulting speeds
@@ -88,9 +87,8 @@ for ii = Athlets
             % so i don't accidentally call uncleansed data:
             clear Distance Displacement Elevation Speed dT Lat Lon e data Time Y M D h m s
             
-            % remove stand-still points %%%%%%this doesn't work while
-            % 'distance' isn't working
-%             df = df((df.Speed > .3),:);  % .2 m/s: 1.3-1.8 is ave walk, .2m/s is a 8 min 100 m swim
+            % remove stand-still points %%%%%%this doesn't work while 'distance' isn't working
+            df = df((df.Speed > .3),:);  % .2 m/s: 1.3-1.8 is ave walk, .2m/s is a 8 min 100 m swim
             
             % calculate total-activity variables
             Umean     = mean(df.Speed);                        % m/s, average speed
@@ -144,11 +142,12 @@ for ii = Athlets
                 Grademed, {Activity}, {Athlete}, {FileID});
             
         end
-        writetable(activities, strcat('test',Athlete,ActivityType{jj},'.csv'))
+        writetable(activities, ['../../csv files/test',Athlete,ActivityType{jj},'.csv'])
         
     end 
 end
 
+% found using ('tic' and 'toc'):
 % Adam's swims took 34 seconds to process (33 files)
 % Adam's walks took 131 seconds (24 files)
 % Adam's runs took ~1 hr

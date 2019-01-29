@@ -1,6 +1,11 @@
 # preprocessing for part II
 # this script removes some covariates, calculates correlation coefficients, and creates a 
 # ggpairs plot with scatter plots, correlation coefficients, and pdfs.
+rm(list=ls()) # clear work environment
+
+#library(ggplot2)
+#library(GGally)
+
 
 df <- readRDS("TrainingData.rds")
 
